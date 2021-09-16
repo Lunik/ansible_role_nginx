@@ -1,0 +1,18 @@
+---
+
+- block:
+  - name: "main | Install requirements"
+    ansible.builtin.import_tasks: requirements.yml
+
+  - name: "main | Configure service"
+    ansible.builtin.import_tasks: config.yml
+
+  - name: "main | Configure system service"
+    ansible.builtin.import_tasks: service.yml
+  when: not nginx_config_site_only
+
+- name: "main | Configure sites"
+  ansible.builtin.include_tasks: site.yml
+  loop_control:
+    loop_var: site
+  loop: "{{ nginx_sites }}"

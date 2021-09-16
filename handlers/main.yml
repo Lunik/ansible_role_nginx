@@ -1,0 +1,17 @@
+---
+
+- name: "handler | Reload service"
+  become: true
+  throttle: 1
+  systemd:
+    daemon_reload: true
+    name: "{{ nginx_service_name }}"
+    state: reloaded
+
+- name: "handler | Restart service"
+  become: true
+  throttle: 1
+  systemd:
+    daemon_reload: true
+    name: "{{ nginx_service_name }}"
+    state: restarted

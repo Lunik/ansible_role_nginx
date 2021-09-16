@@ -1,0 +1,62 @@
+---
+
+- name: "config | Remove SSL config from main Nginx config"
+  become: yes
+  ansible.builtin.lineinfile:
+    path: "{{ nginx_config_path }}/nginx.conf"
+    regex: "{{ item }}"
+    state: absent
+  loop:
+    - ".*ssl_protocols.*"
+    - ".*ssl_prefer_server_ciphers.*"
+  notify:
+    - "handler | Reload service"
+
+- name: "config | Create ssl config dir"
+  become: yes
+  ansible.builtin.file:
+    path: "{{ nginx_ssl_cert_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: "config | Copy ssl files"
+  become: yes
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ nginx_ssl_cert_path }}"
+    owner: root
+    group: root
+    mode: '0400'
+  loop:
+    - "{{ nginx_ssl_source_cert_path }}"
+    - "{{ nginx_ssl_source_key_path }}"
+    - "{{ nginx_ssl_source_passphrase_path }}"
+  notify:
+    - "handler | Reload service"
+
+- name: "config | Template configs"
+  become: yes
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "{{ nginx_extra_config_path }}/"
+    owner: root
+    group: root
+    mode: '0444'
+  loop:
+    - templates/config/http.conf
+    - templates/config/https.conf
+    - templates/config/ssl.conf
+  notify:
+    - "handler | Reload service"
+
+- name: "config | Disable default site configs"
+  become: yes
+  ansible.builtin.file:
+    path: "{{ nginx_site_enabled_config_path }}/{{ item }}"
+    state: absent
+  loop:
+    - default
+  notify:
+    - "handler | Reload service"

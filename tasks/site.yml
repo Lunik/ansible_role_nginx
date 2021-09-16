@@ -1,0 +1,28 @@
+---
+
+- name: "config | Template site configs"
+  become: yes
+  ansible.builtin.template:
+    src: "templates/config/site.conf"
+    dest: "{{ nginx_site_config_path }}/{{ item.name }}.conf"
+    owner: root
+    group: root
+    mode: '0444'
+  vars:
+    site_params: "{{ item.params | default({}) }}"
+  loop: "{{ nginx_sites }}"
+  notify:
+    - "handler | Reload service"
+
+- name: "config | Enable site configs"
+  become: yes
+  ansible.builtin.file:
+    src: "{{ nginx_site_config_path }}/{{ item.name }}.conf"
+    dest: "{{ nginx_site_enabled_config_path }}/{{ item.name }}.conf"
+    owner: root
+    group: root
+    state: link
+  when: (item.enabled | default(false))
+  loop: "{{ nginx_sites }}"
+  notify:
+    - "handler | Reload service"

@@ -1,0 +1,31 @@
+---
+
+- name: "requirements | Install required packages (apt)"
+  become: yes
+  ansible.builtin.apt:
+    name: "{{ nginx_required_packages }}"
+    state: latest
+    update_cache: yes
+  when: "ansible_facts.os_family == 'Debian'"
+  notify:
+    - "handler | Restart service"
+
+- name: "requirements | Install required packages (dnf)"
+  become: yes
+  ansible.builtin.dnf:
+    name: "{{ nginx_required_packages }}"
+    state: latest
+    update_cache: yes
+  when: "ansible_facts.os_family == 'RedHat'"
+  notify:
+    - "handler | Restart service"
+
+- name: "requirements | Install required packages (apk)"
+  become: yes
+  ansible.builtin.apk:
+    name: "{{ nginx_required_packages }}"
+    state: latest
+    update_cache: yes
+  when: "ansible_facts.os_family == 'Alpine'"
+  notify:
+    - "handler | Restart service"

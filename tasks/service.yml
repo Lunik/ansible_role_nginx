@@ -1,0 +1,8 @@
+---
+
+- name: "service | Start and enable service"
+  become: yes
+  ansible.builtin.systemd:
+    name: "{{ nginx_service_name }}"
+    state: started
+    enabled: yes
