@@ -29,6 +29,6 @@ nginx_sites: []
 #     root: /var/www/html
 #     index: index.html
 #     location:
-#       path: /
-#       params:
-#         try_files: "$uri $uri/ =404"
+#       - path: /
+#         params:
+#           try_files: "$uri $uri/ =404"
